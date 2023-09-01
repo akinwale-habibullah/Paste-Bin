@@ -49,6 +49,7 @@ public class SecurityConfig {
         .requestMatchers("/api/v1/auth/signup", "/api/v1/auth/login").permitAll()
         .requestMatchers(HttpMethod.POST, "/api/v1/pastes").permitAll()
         .requestMatchers(HttpMethod.GET, "/api/v1/pastes/recentPastes").permitAll()
+        .requestMatchers(HttpMethod.GET, "/api/v1/pastes/{id}").permitAll()
         .requestMatchers("/api/v1/*", "/api/v1/**").authenticated()
         .anyRequest().anonymous())
       .userDetailsService(userService)

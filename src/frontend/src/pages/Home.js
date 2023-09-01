@@ -1,6 +1,6 @@
 import React, { useEffect, useReducer } from 'react'
 import { useSelector, useDispatch } from 'react-redux';
-import moment from 'moment'
+import { Navigate } from 'react-router-dom'
 import {
   Switch,
   Avatar,
@@ -8,17 +8,14 @@ import {
   TextField,
   Typography,
   Grid,
-  Stack,
   Select,
   MenuItem,
   FormControl,
   FormControlLabel,
   Button,
-  Paper,
   Autocomplete
 } from '@mui/material'
 import {
-  PublicOutlined,
   Facebook,
   Twitter,
   Google,
@@ -30,6 +27,7 @@ import TagInput from '../components/TagInput'
 import categories from '../constants/categories'
 import expiryOptions from '../constants/expiryOptions'
 import syntaxList from '../constants/syntax'
+import PublicPasteList from '../components/PublicPasteList';
 
 function formReducer (fields, action) {
   switch (action.type) {
@@ -152,6 +150,7 @@ function Home() {
   const dispatch = useDispatch()
   const auth = useSelector(state => state.auth);
   const recentPastes = useSelector(state => state.pastes.recentPastes);
+  const paste = useSelector(state => state.pastes.paste);
   const [fields, dispatchReducerAction] = useReducer(formReducer, initialFormState)
 
   useEffect(() => {
@@ -185,11 +184,15 @@ function Home() {
       // folder,
     };
 
+    // send network request
     dispatch(createPaste(pasteObject))
+    
+    // clear form
+    dispatchReducerAction({ type: 'clearForm' })
+  }
 
-    dispatchReducerAction({
-      type: 'clearForm'
-    })
+  if (Object(paste).hasOwnProperty('id') ) {
+    return <Navigate replace to={`/paste/${paste.id}`} />
   }
 
   return (
@@ -486,45 +489,7 @@ function Home() {
       </Grid>
 
       <Grid item xs={4}>
-        <Paper elevation={3} sx={{ mt: 5, pt: 0, pl: 2 }}>
-          <Typography variant='overline' sx={{fontWeight: 'bold'}}>Public Pastes</Typography>
-
-          <Stack 
-            spacing={1}
-            paddingTop={2}
-            paddingBottom={5}
-          >
-            {
-              recentPastes.map((paste) => {
-                return (
-                  <Grid container key={paste.id} alignItems='flex-start'>
-                    <Grid item xs={1}>
-                      <PublicOutlined color='secondary' />
-                    </Grid>
-                    <Grid item container xs={11}>
-                      <Grid item xs={12}>
-                        <Typography variant='body2'>{paste.name[0].toUpperCase() + paste.name.slice(1)}</Typography>
-                      </Grid>
-                      <Grid item xs={12}>
-                        <Grid container spacing={1}>
-                          <Grid item>
-                            <Typography variant='caption'>{paste.syntax ? paste.syntax : 'None'} |</Typography>
-                          </Grid>
-                          <Grid item>
-                            <Typography variant='caption'>{paste.createdOn ? moment(paste.createdOn, "YYYY-MM-DD").fromNow() : "Null"} |</Typography>
-                          </Grid>
-                          <Grid item>
-                            <Typography variant='caption'>{paste.filesize ? paste.filesize : 'Null'}</Typography>
-                          </Grid>
-                        </Grid>
-                      </Grid>
-                    </Grid>
-                  </Grid>
-                )
-              })
-            }
-          </Stack>
-        </Paper>
+        <PublicPasteList recentPastes={recentPastes} />
       </Grid>
     </Grid>
   )

@@ -3,8 +3,9 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 const initialState = {
   loading: false,
   recentPastes: [],
-  userPastes: []
-};
+  userPastes: [],
+  paste: {}
+}
 
 export const createPaste = createAsyncThunk(
   'pastes/createPaste',
@@ -15,7 +16,7 @@ export const createPaste = createAsyncThunk(
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(pasteObject)
-    };
+    }
 
     const response = await fetch('/api/v1/pastes', options)
     return await response.json()
@@ -30,9 +31,24 @@ export const getRecentPastes = createAsyncThunk(
       headers: {
         'Content-Type': 'application/json'
       }
-    };
+    }
 
     const response = await fetch('/api/v1/pastes/recentPastes', options)
+    return await response.json()
+  }
+)
+
+export const getPasteById = createAsyncThunk(
+  'pastes/getPasteById',
+  async (id, thunkAPI) => {
+    const options = {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }
+
+    const response = await fetch(`/api/v1/pastes/${id}`, options)
     return await response.json()
   }
 )
@@ -42,43 +58,56 @@ export const pasteSlice = createSlice({
   initialState,
   reducers: {
     setRecentPaste: (state, action) => {
-      state.recentPastes = action.payload;
+      state.recentPastes = action.payload
     },
     setUserPastes: (state, action) => {
-      state.userPastes = action.payload;
+      state.userPastes = action.payload
     },
     deletePaste: (state, action) => {
-      let pasteId = action.payload;
-      console.log('deletePaste ' + pasteId);
+      let pasteId = action.payload
+      console.log('deletePaste ' + pasteId)
     },
     getPaste: (state, action) => {
-      let pasteId = action.payload;
-      console.log('getPaste ' + pasteId);
+      let pasteId = action.payload
+      console.log('getPaste ' + pasteId)
     },
   },
   extraReducers: (builder) => {
     builder.addCase(createPaste.pending, (state, action) => {
-      state.loading = true;
+      state.loading = true
     })
     builder.addCase(createPaste.fulfilled, (state, action) => {
-      state.loading = false;
-      state.userPastes.push(action.payload.data);
+      state.loading = false
+      state.userPastes.push(action.payload.data)
+
+      state.paste = action.payload.data
     })
     builder.addCase(createPaste.rejected, (state, action) => {
-      state.loading = false;
+      state.loading = false
     })
     builder.addCase(getRecentPastes.pending, (state, action) => {
-      state.loading = true;
+      state.loading = true
     })
     builder.addCase(getRecentPastes.fulfilled, (state, action) => {
-      state.loading = false;
-      state.recentPastes = action.payload.data;
+      state.loading = false
+      state.recentPastes = action.payload.data
     })
     builder.addCase(getRecentPastes.rejected, (state, action) => {
-      state.loading = false;
+      state.loading = false
+    })
+    builder.addCase(getPasteById.pending, (state, action) => {
+      state.loading = true
+    })
+    builder.addCase(getPasteById.fulfilled, (state, action) => {
+      state.loading = false
+      state.paste = action.payload.data
+    })
+    builder.addCase(getPasteById.rejected, (state, action) => {
+      state.loading = false
+      state.paste = {}
     })
   }
-});
+})
 
 export const { setRecentPaste, setUserPastes, deletePaste, getPaste } = pasteSlice.actions
 

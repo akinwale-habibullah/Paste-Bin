@@ -1,7 +1,6 @@
 package com.akinwalehabib.pastebin.controllers;
 
 import java.security.Principal;
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,7 +81,7 @@ public class PasteController {
       throw new ResourceNotFoundException("Paste does not exist.");
     }
 
-    if (paste.get().getPassword() != null) {
+    if (paste.get().getPassword() == null && "".equals(paste.get().getPassword())) {
       throw new Exception("Undefined handler for Pastes with password.");
     }
 
