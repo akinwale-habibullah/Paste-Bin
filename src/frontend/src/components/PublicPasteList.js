@@ -14,6 +14,18 @@ import {
 } from '@mui/icons-material'
 
 function PublicPasteList({ recentPastes }) {
+  if (recentPastes.length === 0) {
+    return (
+      <Paper elevation={3} sx={{ mt: 5, pt: 0, pl: 2 }}>
+        <Typography variant='overline' sx={{fontWeight: 'bold'}}>Public Pastes</Typography>
+
+        <Typography variant='body2'>
+          No recent pastes
+        </Typography>
+      </Paper>
+    )
+  }
+
   return (
     <Paper elevation={3} sx={{ mt: 5, pt: 0, pl: 2 }}>
           <Typography variant='overline' sx={{fontWeight: 'bold'}}>Public Pastes</Typography>

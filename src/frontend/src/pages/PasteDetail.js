@@ -18,11 +18,7 @@ function PasteDetail({ fields = {} }) {
   const paste = useSelector(state => state.pastes.paste)
 
   useEffect(() => {
-    if (!Object(paste).hasOwnProperty('id')) {
-      dispatch(getRecentPastes())
-    } 
-      
-    
+    dispatch(getRecentPastes())
     dispatch(getPasteById(id))
   },[dispatch, id, paste])
 

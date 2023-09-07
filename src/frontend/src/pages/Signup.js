@@ -1,238 +1,223 @@
-import React, { useState} from 'react';
+import React, { useEffect, useReducer } from 'react';
+import { useSelector, useDispatch  } from 'react-redux';
+import { Navigate } from 'react-router-dom'
 import {
   Link,
   TextField,
   Typography,
   Grid,
-  Stack,
   Button
 } from '@mui/material';
 import {
-  PublicOutlined,
   Facebook,
   Twitter,
   Google
 } from '@mui/icons-material';
+import { getRecentPastes } from '../app/features/pasteSlice';
+import { signup } from '../app/features/authSlice'
+import PublicPasteList from '../components/PublicPasteList';
 
+function formReducer (state, action) {
+  switch (action.type) {
+    case 'setFirstName': {
+      return {
+        ...state,
+        firstName: action.value
+      }
+    }
+    case 'setLastName': {
+      return {
+        ...state,
+        lastName: action.value
+      }
+    }
+    case 'setEmail': {
+      return {
+        ...state,
+        email: action.value
+      }
+    }
+    case 'setPassword': {
+      return {
+        ...state,
+        password: action.value
+      }
+    }
+    default:
+      throw Error("Unknown action: " + action.type)
+  }
+}
 
 function SignUp() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [email, setEmail] = useState('');
-  const [captcha, setCaptcha] = useState('');
-  const handleUsername = e => setUsername(e.target.value);
-  const handlePassword = e => setPassword(e.target.value);
-  const handleEmail = e => setEmail(e.target.value);
-  const handleCaptcha = e => setCaptcha(e.target.value);
+  const initialFormState = {
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+  }
+  const dispatch = useDispatch()
+  const recentPastes = useSelector(state => state.pastes.recentPastes)
+  const newUserCreated = useSelector(state => state.auth.newUserCreated)
+
+  const [fields, dispatchFormAction] = useReducer(formReducer, initialFormState)
+  const validate = () => {
+    if (fields.firstName === '' || fields.lastName === ''|| fields.email === '' || fields.password === '') {
+      return false
+    }
+
+    return true
+  }
+
+  const handleChangeEvent = (type, e) => {
+    dispatchFormAction({
+      type,
+      value: e.target.value
+    })
+  }
+
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    alert('Form submit');
+    dispatch(signup(fields))
   }
-  
-  const recentPasteList = [
-    {
-      name:'Pong',
-      metadata: {
-        syntax: 'C',
-        createdAt: '6 min ago',
-        filesize: '3.91KB'
-      }
-    },
-    {
-      name:'Add UI on top of a dataframe to let vie..',
-      metadata: {
-        syntax: 'Python',
-        createdAt: '1 hour ago',
-        filesize: '0.50KB'
-      }
-    },
-    {
-      name:'Untitled',
-      metadata: {
-        syntax: 'JSON',
-        createdAt: '1 hour ago',
-        filesize: '0.06KB'
-      }
-    },
-    {
-      name:'PALABIA',
-      metadata: {
-        syntax: 'JSON',
-        createdAt: '1 hour ago',
-        filesize: '0.06'
-      }
-    },
-    {
-      name:'Godot 4 HTML Apache fix',
-      metadata: {
-        syntax: 'Bash',
-        createdAt: '1 hour ago',
-        filesize: '3.28'
-      }
-    },
-    {
-      name:'Regularly Scheduled Pickup Data',
-      metadata: {
-        syntax: 'JavaScript',
-        createdAt: '1 hour ago',
-        filesize: '1.17'
-      }
-    },
-    {
-      name:'Basic SysV-Init Script',
-      metadata: {
-        syntax: 'Bash',
-        createdAt: '2 hours ago',
-        filesize: '1.00KB'
-      }
-    },
-  ]
+
+  useEffect(() => {
+    dispatch(getRecentPastes())
+  }, [dispatch])
+
+  if (newUserCreated) {
+    return <Navigate to="/login" />
+  }
 
   return (
-    <Grid container spacing={3} columnSpacing={1}>
-      <Grid item container xs={9}>
-        <Grid item container xs={12}>
-          <Grid item xs={12}>
-            <Typography variant='subtitle' gutterBottom={true}>Signup Page </Typography>
-            <Typography variant='body1' gutterBottom={true}>Join the Pastebin community with over 4,000,000 members! </Typography>
+    <>
+      <Grid container spacing={3} columnSpacing={4} sx={{ mt: 1 }}>
+        <Grid item container xs={8} rowSpacing={3}>
+          <Grid item container xs={12}>
+            <Grid item xs={12} sx={{ pt: 2 }}>
+              <Typography variant='subtitle' gutterBottom={true}>Signup Page </Typography>
+              <Typography variant='body1' gutterBottom={true}>Join the Pastebin community with over 4,000,000 members! </Typography>
+            </Grid>
+            <Grid item container xs={10} justifyContent='space-between'>
+              <Grid item>
+                <Button variant='contained' startIcon={<Facebook />} size='small'>Sign in With FaceBook</Button>
+              </Grid>
+              <Grid item>
+                <Button variant='contained' startIcon={<Twitter />} size='small'>Sign in With Twitter</Button>
+              </Grid>
+              <Grid item>
+                <Button variant='contained' startIcon={<Google />} size='small'>Sign in With Google</Button>
+              </Grid>
+            </Grid>
+            <Grid item container xs={10} justifyContent='center' sx={{ mt: 2}}>
+              <Grid item>
+                <Typography variant='body2'>OR</Typography>
+              </Grid>
+            </Grid>
           </Grid>
-          <Grid item container xs={10} justifyContent='space-between'>
-            <Grid item>
-              <Button variant='outlined' startIcon={<Facebook />} size='small'>Sign in With FaceBook</Button>
-            </Grid>
-            <Grid item>
-              <Button variant='outlined' startIcon={<Twitter />} size='small'>Sign in With Twitter</Button>
-            </Grid>
-            <Grid item>
-              <Button variant='outlined' startIcon={<Google />} size='small'>Sign in With Google</Button>
-            </Grid>
-          </Grid>
-          <Grid item container xs={9} justifyContent='center'>
-            <Grid item>
-              <Typography variant='body2'>OR</Typography>
-            </Grid>
-          </Grid>
-        </Grid>
 
-        <Grid item container xs={12} spacing={2}>
-          <Grid item container xs={8}>
-            <form action="" onSubmit={handleFormSubmit} style={{width: '100%'}}>
-              <Grid item container alignItems="flex-start" spacing={2}>
-                <Grid item xs={3}>
-                  <Typography variant="body1"> Username </Typography>
-                </Grid>
-                <Grid item xs={9}>
-                  <TextField
-                      id="username"
-                      value={username}
-                      inputProps={{ 'aria-label': 'username' }}
-                      onChange={handleUsername}
-                      size='small'
-                      fullWidth
-                    />
-                </Grid>
-              </Grid>
-              <Grid item container alignItems="flex-start" spacing={2}>
-                <Grid item xs={3}>
-                  <Typography variant="body1"> Email </Typography>
-                </Grid>
-                <Grid item xs={9}>
-                  <TextField
-                      id="email"
-                      value={email}
-                      inputProps={{ 'aria-label': 'email' }}
-                      onChange={handleEmail}
-                      size='small'
-                      fullWidth
-                    />
-                </Grid>
-              </Grid>
-              <Grid item container alignItems="flex-start" spacing={2}>
-                <Grid item xs={3}>
-                  <Typography variant="body1"> Password </Typography>
-                </Grid>
-                <Grid item xs={9}>
-                  <TextField
-                      id="password"
-                      value={password}
-                      inputProps={{ 'aria-label': 'username' }}
-                      onChange={handlePassword}
-                      size='small'
-                      type='password'
-                      fullWidth
-                    />
-                </Grid>
-              </Grid>
-              <Grid item container alignItems="flex-start" spacing={2}>
-                <Grid item xs={3}></Grid>
-                <Grid item container xs={9} justifyContent='space-between'>
-                  <TextField
-                      id="captcha"
-                      value={captcha}
-                      inputProps={{ 'aria-label': 'email' }}
-                      onChange={handleCaptcha}
-                      size='small'
-                    />
-                  <TextField
-                      id="captcha"
-                      inputProps={{ 'aria-label': 'email' }}
-                      onChange={handleCaptcha}
-                      size='small'
-                      value='captcha'
-                      disabled
-                    />
-                </Grid>
-              </Grid>
-              <Grid item container alignItems="flex-start" spacing={2}>
-                <Grid item xs={3}>
-                </Grid>
-                <Grid item xs={9}>
-                  <Button type='submit' variant='outlined' fullWidth>Login</Button>
-                </Grid>
-              </Grid>
-            </form>
-          </Grid>
-          <Grid item xs={4}>
-            <Typography variant='body1'>Related pages</Typography>
-            <Grid item container xs={12} flexDirection={'column'}>
-              <Link>Create New Account</Link>
-              <Link>Forgot Username</Link>
-              <Link>Forgot Password</Link>
-              <Link>No Activation Mail?</Link>
-            </Grid>
-          </Grid>
-        </Grid>
-      </Grid>
-      <Grid item xs={3}>
-        <Typography variant='h6'>Public Pastes</Typography>
-
-        <Stack spacing={2}>
-          {
-            recentPasteList.map((paste) => {
-              return (
-                <Grid container key={paste.name}>
-                  <Grid item xs={1}><PublicOutlined /></Grid>
-                  <Grid item container xs={11} >
-                    <Grid item xs={12}><Typography variant='body1'>{paste.name}</Typography></Grid>
-                    <Grid item container xs={12} spacing={1}>
-                      <Grid item>
-                        <Typography variant='body2'>{paste.metadata.syntax} |</Typography>
-                      </Grid>
-                      <Grid item>
-                        <Typography variant='body2'>{paste.metadata.createdAt} |</Typography>
-                      </Grid>
-                      <Grid item>
-                        <Typography variant='body2'>{paste.metadata.filesize}</Typography>
-                      </Grid>
+          <Grid item container xs={12} spacing={2} justifyContent={'space-between'}>
+            <Grid item container xs={7}>
+              <form action="" onSubmit={handleFormSubmit} style={{ width: '100%' }}>
+                <Grid item container rowGap={1}>
+                  <Grid item container alignItems="flex-start" spacing={2}>
+                    <Grid item xs={3}>
+                      <Typography variant="body1"> First name </Typography>
+                    </Grid>
+                    <Grid item xs={9}>
+                      <TextField
+                        id="firstName"
+                        value={fields.firstName}
+                        inputProps={{ 'aria-label': 'username' }}
+                        onChange={(e) => handleChangeEvent('setFirstName', e)}
+                        size='small'
+                        fullWidth
+                      />
+                    </Grid>
+                  </Grid>
+                  <Grid item container alignItems="flex-start" spacing={2}>
+                    <Grid item xs={3}>
+                      <Typography variant="body1"> Last name </Typography>
+                    </Grid>
+                    <Grid item xs={9}>
+                      <TextField
+                        id="username"
+                        value={fields.lastName}
+                        inputProps={{ 'aria-label': 'username' }}
+                        onChange={(e) => handleChangeEvent('setLastName', e)}
+                        size='small'
+                        fullWidth
+                      />
+                    </Grid>
+                  </Grid>
+                  <Grid item container alignItems="flex-start" spacing={2}>
+                    <Grid item xs={3}>
+                      <Typography variant="body1"> Email </Typography>
+                    </Grid>
+                    <Grid item xs={9}>
+                      <TextField
+                        id="email"
+                        value={fields.email}
+                        inputProps={{ 'aria-label': 'email' }}
+                        onChange={(e) => handleChangeEvent('setEmail', e)}
+                        size='small'
+                        fullWidth
+                      />
+                    </Grid>
+                  </Grid>
+                  <Grid item container alignItems="flex-start" spacing={2}>
+                    <Grid item xs={3}>
+                      <Typography variant="body1"> Password </Typography>
+                    </Grid>
+                    <Grid item xs={9}>
+                      <TextField
+                        id="password"
+                        value={fields.password}
+                        inputProps={{ 'aria-label': 'username' }}
+                        onChange={(e) => handleChangeEvent('setPassword', e)}
+                        size='small'
+                        type='password'
+                        fullWidth
+                      />
+                    </Grid>
+                  </Grid>
+                  <Grid item container alignItems="flex-start" spacing={2} >
+                    <Grid item xs={3}>
+                    </Grid>
+                    <Grid item xs={9}>
+                      <Button type='submit' variant='contained' fullWidth disabled={!validate()}>Signup</Button>
                     </Grid>
                   </Grid>
                 </Grid>
-              )
-            })
-          }
-        </Stack>
+              </form>
+            </Grid>
+            <Grid item xs={4}>
+              <Typography variant='bodyline'>Related pages</Typography>
+              <Grid item container xs={12} flexDirection={'column'}>
+                <Typography variant='body2'>
+                  <Link to="/#" style={{textDecoration: 'none' }}>
+                    Create New Account
+                  </Link>
+                </Typography>
+                <Typography variant='body2' style={{textDecoration: 'none' }}>
+                  <Link to="/#">
+                    Forgot Username
+                  </Link>
+                </Typography>
+                <Typography variant='body2' style={{textDecoration: 'none' }}>
+                  <Link to="/#">
+                    No Activation Mail
+                  </Link>
+                </Typography>
+              </Grid>
+            </Grid>
+          </Grid>
+        </Grid>
+
+        <Grid item xs={4}>
+          <PublicPasteList recentPastes={recentPastes} />
+        </Grid>
       </Grid>
-    </Grid>
+    </>
   )
 }
 

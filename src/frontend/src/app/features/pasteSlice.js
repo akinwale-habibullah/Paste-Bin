@@ -54,7 +54,7 @@ export const getPasteById = createAsyncThunk(
 )
 
 export const pasteSlice = createSlice({
-  name: 'authentication',
+  name: 'paste',
   initialState,
   reducers: {
     setRecentPaste: (state, action) => {

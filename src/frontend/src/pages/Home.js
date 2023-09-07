@@ -1,5 +1,6 @@
 import React, { useEffect, useReducer } from 'react'
 import { useSelector, useDispatch } from 'react-redux';
+import moment from 'moment'
 import { Navigate } from 'react-router-dom'
 import {
   Switch,
@@ -50,9 +51,13 @@ function formReducer (fields, action) {
       }
     }
     case 'setExpiresOn': {
+      let [value, type] = action.value.split(' ')
+      type = type.toLowerCase()
+
       return {
         ...fields,
-        expiresOn: action.value
+        expiresOn: moment().add(value, type).format('YYYY-MM-DD HH:mm:ss'),
+        expiry: action.value
       }
     }
     case 'setExposure': {
@@ -121,6 +126,7 @@ function formReducer (fields, action) {
         syntaxHighlight: false,
         syntax: null,
         expiresOn: '',
+        expiry: '',
         exposure: 'public',
         burnAfterRead: false,
         folder: 'none'
@@ -142,6 +148,7 @@ function Home() {
     syntaxHighlight: false,
     syntax: null,
     expiresOn: '',
+    expiry: '',
     exposure: 'public',
     burnAfterRead: false,
     folder: 'none'
@@ -325,8 +332,8 @@ function Home() {
                     <FormControl fullWidth>
                       <Select
                         autoWidth
-                        name="expiresOn"
-                        value={fields.expiresOn}
+                        name="expiry"
+                        value={fields.expiry}
                         inputProps={{ 'aria-label': 'expiry' }}
                         onChange={(e) => dispatchReducerAction({
                             type: 'setExpiresOn',
